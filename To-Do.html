@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: rgb(134, 134, 223);
+    }
+    .container {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 0 20px;
+        
+    }
+    h2 {
+        text-align: center;
+    }
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        padding: 10px;
+        margin-bottom: 5px;
+        background-color: #f4f4f4;
+        border-radius: 5px;
+    }
+    .delete-btn {
+        float: right;
+        cursor: pointer;
+    }
+    .completed {
+        text-decoration: line-through;
+        opacity: 0.5;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>To-Do List</h2>
+    <input type="text" id="taskInput" placeholder="Add new task...">
+    <ul id="taskList"></ul>
+</div>
+<script>
+    // Function to add a new task
+    function addTask() {
+        var taskInput = document.getElementById("taskInput");
+        var taskList = document.getElementById("taskList");
+        var taskText = taskInput.value.trim();
+
+        if (taskText !== "") {
+            var li = document.createElement("li");
+            li.textContent = taskText;
+
+            // Add click event listener to mark task as completed
+            li.addEventListener("click", function() {
+                this.classList.toggle("completed");
+            });
+
+            // Add delete button
+            var deleteBtn = document.createElement("span");
+            deleteBtn.textContent = "❌";
+            deleteBtn.classList.add("delete-btn");
+            deleteBtn.addEventListener("click", function(event) {
+                event.stopPropagation(); // Prevent li click event from firing
+                li.remove();
+                updateLocalStorage();
+            });
+
+            li.appendChild(deleteBtn);
+            taskList.appendChild(li);
+            taskInput.value = ""; // Clear input field
+            updateLocalStorage();
+        }
+    }
+
+    // Function to update local storage with tasks
+    function updateLocalStorage() {
+        var tasks = [];
+        var taskList = document.getElementById("taskList").getElementsByTagName("li");
+
+        for (var i = 0; i < taskList.length; i++) {
+            tasks.push(taskList[i].textContent);
+        }
+
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    // Function to load tasks from local storage
+    function loadTasks() {
+        var tasks = JSON.parse(localStorage.getItem("tasks"));
+
+        if (tasks) {
+            var taskList = document.getElementById("taskList");
+
+            tasks.forEach(function(taskText) {
+                var li = document.createElement("li");
+                li.textContent = taskText;
+
+                // Add click event listener to mark task as completed
+                li.addEventListener("click", function() {
+                    this.classList.toggle("completed");
+                });
+
+                // Add delete button
+                var deleteBtn = document.createElement("span");
+                deleteBtn.textContent = "❌";
+                deleteBtn.classList.add("delete-btn");
+                deleteBtn.addEventListener("click", function(event) {
+                    event.stopPropagation(); // Prevent li click event from firing
+                    li.remove();
+                    updateLocalStorage();
+                });
+
+                li.appendChild(deleteBtn);
+                taskList.appendChild(li);
+            });
+        }
+    }
+
+    // Load tasks when the page is loaded
+    window.onload = function() {
+        loadTasks();
+    };
+
+    // Add task when Enter key is pressed
+    document.getElementById("taskInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            addTask();
+        }
+    });
+</script>
+</body>
+</html>
